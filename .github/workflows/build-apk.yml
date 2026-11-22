@@ -31,6 +31,10 @@ jobs:
           PROJECT_DIR=$(dirname "$SETTINGS_FILE")
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
+      - name: Apply updated Gradle configuration
+        run: |
+          cp app/build.gradle.kts "$PROJECT_DIR/app/build.gradle.kts"
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -42,13 +46,10 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
-        with:
-          packages: platform-tools
-
       - name: Install Android SDK packages
         run: |
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          yes | sdkmanager --licenses
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Build debug APK
@@ -60,4 +61,3 @@ jobs:
           name: COBRA-Link-Guard-APK
           path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
-          
